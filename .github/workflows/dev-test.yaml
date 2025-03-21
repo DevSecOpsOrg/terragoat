@@ -27,16 +27,17 @@ jobs:
       - name: Checkov GitHub Action
         uses: bridgecrewio/checkov-action@v12
         with:
-          output_format: json
-          output_file_path: results.json
+            soft_fail: true
+            output_format: json
+            output_file_path: results.json
           
       - name: Import results to ScanDog
         uses: scandogio/scandog-import@v1.0
         with:
-          ci_run_id: ${{ github.run_id }}
-          report_file: results.json
-          workflow_id: c81851fb35e8dde5737fc24bbad47272
-          scan_type: IaC Scanner
-          scanner: checkov
-          backend_api_token: ${{ secrets.DEV_BACKEND_API_TOKEN }}
-          backend_url: ${{ secrets.DEV_BACKEND_URL }}
+            ci_run_id: ${{ github.run_id }}
+            report_file: results.json
+            workflow_id: c81851fb35e8dde5737fc24bbad47272
+            scan_type: IaC Scanner
+            scanner: checkov
+            backend_api_token: ${{ secrets.DEV_BACKEND_API_TOKEN }}
+            backend_url: ${{ secrets.DEV_BACKEND_URL }}
