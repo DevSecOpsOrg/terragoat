@@ -38,7 +38,7 @@ jobs:
         uses: scandogio/scandog-import@v1.0
         with:
           ci_run_id: ${{ github.run_id }}
-          report_file: results.json
+          report_file: results_json.json
           workflow_id: c81851fb35e8dde5737fc24bbad47272
           scan_type: IaC Scanner
           scanner: checkov
