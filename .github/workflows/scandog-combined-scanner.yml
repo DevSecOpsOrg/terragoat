@@ -1,6 +1,6 @@
 # Combined configuration from 2 templates
 # Scanners: checkov, Trufflehog
-# Generated for github by ScanDog
+# Generated for GITHUB by ScanDog
 name: Combined Security Scanner Pipeline
 on:
   push:
@@ -28,7 +28,7 @@ jobs:
         with:
           ci_run_id: ${{ github.run_id }}
           report_file: results_json.json
-          workflow_id: "b339c937f15604e59d389586d89255fe"
+          workflow_id: "d1a0f7925cf21911df895108a6eadd9e"
           scan_type: IaC Scanner
           scanner: checkov
           backend_api_token: ${{ secrets.SCANDOG_BACKEND_API_TOKEN }}
@@ -47,7 +47,7 @@ jobs:
         with:
           ci_run_id: ${{ github.run_id }}
           report_file: trufflehog.json
-          workflow_id: "b339c937f15604e59d389586d89255fe"
+          workflow_id: "d1a0f7925cf21911df895108a6eadd9e"
           scan_type: Secret Scanning
           scanner: trufflehog
           backend_api_token: ${{ secrets.SCANDOG_BACKEND_API_TOKEN }}
