@@ -1,5 +1,5 @@
-# Combined configuration from 2 templates
-# Scanners: checkov, Trufflehog
+# Combined configuration from 3 templates
+# Scanners: Trivy, checkov, Trufflehog
 # Generated for GITHUB by ScanDog
 name: Combined Security Scanner Pipeline
 on:
@@ -8,6 +8,28 @@ on:
       - master
 
 jobs:
+# Jobs from template: Trivy
+  scandog_trivy_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: rabbitmq:management
+          format: 'json'
+          output: 'trivy-results.json'
+      - name: Import results to ScanDog
+        uses: scandogio/scandog-import@v1.0
+        with:
+          ci_run_id: ${{ github.run_id }}
+          report_file: trivy-results.json
+          workflow_id: "be9f9971a41b7561afe356697131f5d3"
+          scan_type: Container Scanner
+          scanner: Trivy
+          backend_api_token: ${{ secrets.SCANDOG_BACKEND_API_TOKEN }}
+          backend_url: ${{ secrets.SCANDOG_BACKEND_URL }}
 # Jobs from template: checkov
   scandog_checkov_scan:
     permissions:
@@ -28,7 +50,7 @@ jobs:
         with:
           ci_run_id: ${{ github.run_id }}
           report_file: results_json.json
-          workflow_id: "d1a0f7925cf21911df895108a6eadd9e"
+          workflow_id: "be9f9971a41b7561afe356697131f5d3"
           scan_type: IaC Scanner
           scanner: checkov
           backend_api_token: ${{ secrets.SCANDOG_BACKEND_API_TOKEN }}
@@ -47,7 +69,7 @@ jobs:
         with:
           ci_run_id: ${{ github.run_id }}
           report_file: trufflehog.json
-          workflow_id: "d1a0f7925cf21911df895108a6eadd9e"
+          workflow_id: "be9f9971a41b7561afe356697131f5d3"
           scan_type: Secret Scanning
           scanner: trufflehog
           backend_api_token: ${{ secrets.SCANDOG_BACKEND_API_TOKEN }}
