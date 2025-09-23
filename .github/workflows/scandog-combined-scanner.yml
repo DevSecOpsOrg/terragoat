@@ -1,54 +1,30 @@
-# Combined configuration from 2 templates
-# Scanners: checkov, Trufflehog
+# Scanners: Trivy
 # Generated for GITHUB by ScanDog
-name: Combined Security Scanner Pipeline
+name: Container Scanner Scanner Pipeline
 on:
   push:
     branches:
       - master
 
 jobs:
-# Jobs from template: checkov
-  scandog_checkov_scan:
-    permissions:
-      contents: read # for actions/checkout to fetch code
-      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
-      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
+  scandog_trivy_scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Checkov GitHub Action
-        uses: bridgecrewio/checkov-action@v12
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
         with:
-          soft_fail: true
-          output_format: json
-          output_file_path: .
+          image-ref: nginx:stable-perl
+          format: 'json'
+          output: 'trivy-results.json'
       - name: Import results to ScanDog
         uses: scandogio/scandog-import@v1.0
         with:
           ci_run_id: ${{ github.run_id }}
-          report_file: results_json.json
+          report_file: trivy-results.json
           workflow_id: "2d92e4995e58dfa00f667a4882e93ff1"
-          scan_type: IaC Scanner
-          scanner: checkov
-          backend_api_token: ${{ secrets.SCANDOG_BACKEND_API_TOKEN }}
-          backend_url: ${{ secrets.SCANDOG_BACKEND_URL }}
-# Jobs from template: Trufflehog
-  scandog_trufflehog_scan:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install & Run Trufflehog
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/trufflesecurity/trufflehog/main/scripts/install.sh | sh -s -- -b /usr/local/bin
-          trufflehog filesystem --json . > trufflehog.json
-      - name: Import results to ScanDog
-        uses: scandogio/scandog-import@v1.0
-        with:
-          ci_run_id: ${{ github.run_id }}
-          report_file: trufflehog.json
-          workflow_id: "2d92e4995e58dfa00f667a4882e93ff1"
-          scan_type: Secret Scanning
-          scanner: trufflehog
+          scan_type: Container Scanner
+          scanner: Trivy
           backend_api_token: ${{ secrets.SCANDOG_BACKEND_API_TOKEN }}
           backend_url: ${{ secrets.SCANDOG_BACKEND_URL }}
