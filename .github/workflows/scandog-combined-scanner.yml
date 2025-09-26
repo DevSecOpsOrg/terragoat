@@ -24,7 +24,7 @@ jobs:
           ci_run_id: ${{ github.run_id }}
           report_file: trivy-results.json
           workflow_id: "2d92e4995e58dfa00f667a4882e93ff1"
-          scan_type: Container Scanner
+          scan_type: Container
           scanner: Trivy
           backend_api_token: ${{ secrets.SCANDOG_BACKEND_API_TOKEN }}
           backend_url: ${{ secrets.SCANDOG_BACKEND_URL }}
