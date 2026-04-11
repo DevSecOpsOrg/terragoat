@@ -7,27 +7,31 @@ on:
     branches: [ main ]
 
 jobs:
-  scandog_trufflehog_secret:
+  scandog_opengrep_sast:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Install TruffleHog
+      - name: Install Opengrep
         run: |
-          curl -sSfL https://raw.githubusercontent.com/trufflesecurity/trufflehog/main/scripts/install.sh | sh -s -- -b /usr/local/bin
-      - name: Run TruffleHog
+          apt-get update && apt-get install -y curl jq
+          latest_version=$(curl --silent "https://api.github.com/repos/opengrep/opengrep/releases/latest" | jq -r .tag_name)
+          curl -L -o opengrep "https://github.com/opengrep/opengrep/releases/download/${latest_version}/opengrep_manylinux_x86"
+          chmod +x opengrep
+          mv opengrep /usr/local/bin/opengrep
+      - name: Run Opengrep
         run: |
-          trufflehog filesystem --no-verification --no-update --json {{ trufflehog_scan_ref }} > trufflehog.json
+          opengrep scan --config auto --taint-intrafile --json-output=opengrep.json ${opengrep_exclude_patterns} ${opengrep_scan_directories}
       - name: Import results to ScanDog
         uses: scandogio/scandog-import@v1.1
         with:
           endpoint_type: "import"
           ci_run_id: ${{ github.run_id }}
-          report_file: trufflehog.json
-          workflow_id: auto-generated
-          scan_type: Secret Scanning
-          scanner: trufflehog
+          report_file: opengrep.json
+          workflow_id: 3981337a65223392f723d9e85d2d6ec1
+          scan_type: SAST
+          scanner: opengrep
           scandog_token: ${{ secrets.SCANDOG_TOKEN }}
           scandog_url: ${{ vars.SCANDOG_URL }}
